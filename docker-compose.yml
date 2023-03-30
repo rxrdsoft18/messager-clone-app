@@ -1,0 +1,82 @@
+version: "3.8"
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - /var/lib/rabbitmq
+    restart: always
+    env_file:
+      - .env
+
+  presence:
+    build:
+      context: ./
+      dockerfile: ./apps/presence/Dockerfile
+    env_file:
+      - .env
+    depends_on:
+      - rabbitmq
+      - postgres
+    volumes:
+      - .:/usr/src/app # any changes in the host will be reflected in the container
+      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
+    command:
+      - npm run start:dev presence # override CMD in Dockerfile
+
+#  auth:
+#    build:
+#        context: ./
+#        dockerfile: ./apps/auth/Dockerfile
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#      - postgres
+#    volumes:
+#      - .:/usr/src/app # any changes in the host will be reflected in the container
+#      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
+#    command:
+#      - npm run start:dev auth # override CMD in Dockerfile
+
+#  api:
+#    build:
+#      context: ./
+#      dockerfile: ./apps/api/Dockerfile
+#    ports:
+#      - "4000:3000"
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#      - auth
+#      - presence
+#    volumes:
+#      - .:/usr/src/app # any changes in the host will be reflected in the container
+#      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
+#    command:
+#      - npm run start:dev api # override CMD in Dockerfile
+
+  postgres:
+    image: postgres:14
+    container_name: postgres
+    env_file:
+      - .env
+    ports:
+        - "5432:5432"
+    volumes:
+    - ./db/data:/var/lib/postgresql/data
+
+  postgres_admin:
+    image: dpage/pgadmin4
+    container_name: pg_admin
+    env_file:
+      - .env
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
