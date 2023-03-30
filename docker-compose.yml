@@ -13,20 +13,20 @@ services:
     env_file:
       - .env
 
-  presence:
-    build:
-      context: ./
-      dockerfile: ./apps/presence/Dockerfile
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - postgres
-    volumes:
-      - .:/usr/src/app # any changes in the host will be reflected in the container
-      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
-    command:
-      - npm run start:dev presence # override CMD in Dockerfile
+#  presence:
+#    build:
+#      context: ./
+#      dockerfile: ./apps/presence/Dockerfile
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#      - postgres
+#    volumes:
+#      - .:/usr/src/app # any changes in the host will be reflected in the container
+#      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
+#    command:
+#      - npm run start:dev presence # override CMD in Dockerfile
 
 #  auth:
 #    build:
