@@ -1,31 +1,33 @@
 import {
+  BadRequestException,
   ConflictException,
+  Inject,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
 import { User } from '@app/shared/entities/user.entity';
-import { Repository } from 'typeorm';
 import { NewUserDto } from './dtos/new-user.dto';
 import * as bcrypt from 'bcrypt';
 import { LoginDto } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
+import { UserJwt, UsersRepositoryInterface } from '@app/shared';
+import { AuthServiceInterface } from './interfaces/auth.service.interface';
 
 @Injectable()
-export class AuthService {
+export class AuthService implements AuthServiceInterface {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @Inject('UsersRepositoryInterface')
+    private readonly userRepository: UsersRepositoryInterface,
 
     private readonly jwtService: JwtService,
   ) {}
 
   async getUsers(): Promise<User[]> {
-    return this.userRepository.find();
+    return this.userRepository.findAll();
   }
 
   async findByEmail(email: string): Promise<User> {
-    return this.userRepository.findOne({
+    return this.userRepository.findByCondition({
       where: { email },
       select: ['id', 'firstName', 'lastName', 'email', 'password'],
     });
@@ -88,17 +90,31 @@ export class AuthService {
 
     const jwt = await this.jwtService.signAsync({ user });
 
-    return { token: jwt };
+    return { token: jwt, user };
   }
 
-  async verifyJwt(jwt: string): Promise<{ exp: number }> {
+  async verifyJwt(jwt: string): Promise<{ user: User; exp: number }> {
     if (!jwt) throw new UnauthorizedException('Invalid credentials.');
 
     try {
-      const { exp } = await this.jwtService.verifyAsync(jwt);
-      return { exp };
+      const { user, exp } = await this.jwtService.verifyAsync(jwt);
+      return { user, exp };
     } catch (e) {
       throw new UnauthorizedException('Invalid credentials.');
+    }
+  }
+
+  findById(id: number): Promise<User> {
+    return this.userRepository.findOneById(id);
+  }
+
+  async getUserFromHeader(jwt: string): Promise<UserJwt> {
+    if (!jwt) return;
+
+    try {
+      return this.jwtService.decode(jwt) as UserJwt;
+    } catch (e) {
+      throw new BadRequestException('Invalid token.');
     }
   }
 }

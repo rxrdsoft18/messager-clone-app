@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
+import { Controller, Get, Inject, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   Ctx,
@@ -6,16 +6,19 @@ import {
   Payload,
   RmqContext,
 } from '@nestjs/microservices';
-import { SharedService } from '@app/shared';
+import { SharedService, SharedServiceInterface } from '@app/shared';
 import { NewUserDto } from './dtos/new-user.dto';
 import { LoginDto } from './dtos/login.dto';
 import { JwtGuard } from './jwt.guard';
+import { AuthServiceInterface } from './interfaces/auth.service.interface';
 
 @Controller()
 export class AuthController {
   constructor(
-    private readonly authService: AuthService,
-    private readonly sharedService: SharedService,
+    @Inject(AuthService)
+    private readonly authService: AuthServiceInterface,
+    @Inject('SharedServiceInterface')
+    private readonly sharedService: SharedServiceInterface, // private readonly sharedService: SharedService,
   ) {}
 
   @MessagePattern({ cmd: 'get-users' })
@@ -52,5 +55,14 @@ export class AuthController {
     console.log('login', payload);
     this.sharedService.acknowledgeMessage(context);
     return this.authService.verifyJwt(payload.jwt);
+  }
+
+  @MessagePattern({ cmd: 'decode-jwt' })
+  async decodeJwt(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { jwt: string },
+  ) {
+    this.sharedService.acknowledgeMessage(context);
+    return this.authService.getUserFromHeader(payload.jwt);
   }
 }
