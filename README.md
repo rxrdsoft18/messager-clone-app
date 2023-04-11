@@ -1,5 +1,17 @@
 ## POC Messenger API with NestJS and RabbitMQ
 
+## Technologies
+- RabbitMQ
+- NestJS
+- Postgres
+- Docker
+- Docker Compose
+- TypeORM
+- Redis
+- JWT
+- Passport
+- Bcrypt
+
 ## Installation
 
 ```bash

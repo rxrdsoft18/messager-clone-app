@@ -2,9 +2,10 @@ import {
   CanActivate,
   ExecutionContext,
   Inject,
-  Injectable, UnauthorizedException,
+  Injectable,
+  UnauthorizedException,
 } from '@nestjs/common';
-import {catchError, Observable, of, switchMap} from 'rxjs';
+import { catchError, Observable, of, switchMap } from 'rxjs';
 import { ClientProxy } from '@nestjs/microservices';
 
 @Injectable()

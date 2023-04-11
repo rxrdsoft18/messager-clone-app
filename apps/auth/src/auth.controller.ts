@@ -24,7 +24,6 @@ export class AuthController {
   @MessagePattern({ cmd: 'get-users' })
   async getUsers(@Ctx() context: RmqContext) {
     this.sharedService.acknowledgeMessage(context);
-    console.log('get-user', context);
     return this.authService.getUsers();
   }
 
@@ -33,15 +32,12 @@ export class AuthController {
     @Ctx() context: RmqContext,
     @Payload() newUserDto: NewUserDto,
   ) {
-    console.log('register', newUserDto);
     this.sharedService.acknowledgeMessage(context);
-    console.log('register', newUserDto);
     return this.authService.register(newUserDto);
   }
 
   @MessagePattern({ cmd: 'login' })
   async login(@Ctx() context: RmqContext, @Payload() loginDto: LoginDto) {
-    console.log('login', loginDto);
     this.sharedService.acknowledgeMessage(context);
     return this.authService.login(loginDto);
   }
@@ -52,7 +48,6 @@ export class AuthController {
     @Ctx() context: RmqContext,
     @Payload() payload: { jwt: string },
   ) {
-    console.log('login', payload);
     this.sharedService.acknowledgeMessage(context);
     return this.authService.verifyJwt(payload.jwt);
   }
@@ -64,5 +59,23 @@ export class AuthController {
   ) {
     this.sharedService.acknowledgeMessage(context);
     return this.authService.getUserFromHeader(payload.jwt);
+  }
+
+  @MessagePattern({ cmd: 'add-friend' })
+  async addFriend(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { userId: number; friendId: number },
+  ) {
+    this.sharedService.acknowledgeMessage(context);
+    return this.authService.addFriend(payload.userId, payload.friendId);
+  }
+
+  @MessagePattern({ cmd: 'get-friends' })
+  async getFriends(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { userId: number },
+  ) {
+    this.sharedService.acknowledgeMessage(context);
+    return this.authService.getFriends(payload.userId);
   }
 }

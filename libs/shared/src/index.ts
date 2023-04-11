@@ -5,11 +5,14 @@ export * from './services/shared.service';
 
 export * from './guards/auth.guard';
 
-export * from './repositories/base/base.abstract.repository';
-export * from './repositories/base/base.interface.repository';
+
+export * from './repositories/users.repository';
+export * from './repositories/friend-request.repository';
 
 export * from './interfaces/users.repository.interface';
 export * from './interfaces/shared.service.interface';
 export * from './interfaces/user-jwt.interface';
+export * from './interfaces/user-request.interface';
 
-export * from './entities/user.entity';
+
+export * from './interceptors/user.interceptor';

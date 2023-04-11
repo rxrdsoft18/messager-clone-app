@@ -22,41 +22,42 @@ services:
 #    depends_on:
 #      - rabbitmq
 #      - postgres
+#      - redis
 #    volumes:
 #      - .:/usr/src/app # any changes in the host will be reflected in the container
 #      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
 #    command: npm run start:dev presence # override CMD in Dockerfile
 
-  auth:
-    build:
-        context: ./
-        dockerfile: ./apps/auth/Dockerfile
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - postgres
-    volumes:
-      - .:/usr/src/app # any changes in the host will be reflected in the container
-      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
-    command: npm run start:dev auth # override CMD in Dockerfile
-
-  api:
-    build:
-      context: ./
-      dockerfile: ./apps/api/Dockerfile
-    ports:
-      - "4000:3000"
-    env_file:
-      - .env
-    depends_on:
-      - rabbitmq
-      - auth
- #     - presence
-    volumes:
-      - .:/usr/src/app # any changes in the host will be reflected in the container
-      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
-    command: npm run start:dev api # override CMD in Dockerfile
+#  auth:
+#    build:
+#        context: ./
+#        dockerfile: ./apps/auth/Dockerfile
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#      - postgres
+#    volumes:
+#      - .:/usr/src/app # any changes in the host will be reflected in the container
+#      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
+#    command: npm run start:dev auth # override CMD in Dockerfile
+#
+#  api:
+#    build:
+#      context: ./
+#      dockerfile: ./apps/api/Dockerfile
+#    ports:
+#      - "4000:3000"
+#    env_file:
+#      - .env
+#    depends_on:
+#      - rabbitmq
+#      - auth
+# #     - presence
+#    volumes:
+#      - .:/usr/src/app # any changes in the host will be reflected in the container
+#      - /usr/src/app/node_modules # any changes in the container will be reflected in the host
+#    command: npm run start:dev api # override CMD in Dockerfile
 
   postgres:
     image: postgres:14
@@ -77,3 +78,15 @@ services:
       - "5050:80"
     depends_on:
       - postgres
+
+  redis:
+    image: redis
+    container_name: redis
+    command: /bin/sh -c "redis-server --requirepass $$REDIS_PASS"
+    env_file:
+      - .env
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis/data:/data
+    restart: always

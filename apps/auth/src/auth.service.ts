@@ -12,6 +12,8 @@ import { LoginDto } from './dtos/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { UserJwt, UsersRepositoryInterface } from '@app/shared';
 import { AuthServiceInterface } from './interfaces/auth.service.interface';
+import { FriendRequestEntity } from '@app/shared/entities/friend-request.entity';
+import { FriendRequestRepositoryInterface } from '@app/shared/interfaces/friend-request.repository.interface';
 
 @Injectable()
 export class AuthService implements AuthServiceInterface {
@@ -19,8 +21,28 @@ export class AuthService implements AuthServiceInterface {
     @Inject('UsersRepositoryInterface')
     private readonly userRepository: UsersRepositoryInterface,
 
+    @Inject('FriendRequestRepositoryInterface')
+    private readonly friendsRepository: FriendRequestRepositoryInterface,
     private readonly jwtService: JwtService,
   ) {}
+
+  async getFriends(userId: number): Promise<FriendRequestEntity[]> {
+    const creator = await this.findById(userId);
+    return await this.friendsRepository.findWithRelations({
+      where: [{ creator }, { receiver: creator }],
+      relations: ['creator', 'receiver'],
+    });
+  }
+
+  async addFriend(
+    userId: number,
+    friendId: number,
+  ): Promise<FriendRequestEntity> {
+    const creator = await this.findById(userId);
+    const receiver = await this.findById(friendId);
+
+    return this.friendsRepository.save({ creator, receiver });
+  }
 
   async getUsers(): Promise<User[]> {
     return this.userRepository.findAll();
@@ -85,11 +107,7 @@ export class AuthService implements AuthServiceInterface {
     const user = await this.validateUser(loginDto.email, loginDto.password);
 
     if (!user) throw new UnauthorizedException('Invalid credentials.');
-
-    console.log('user', user);
-
     const jwt = await this.jwtService.signAsync({ user });
-
     return { token: jwt, user };
   }
 
