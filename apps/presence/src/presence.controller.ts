@@ -1,6 +1,11 @@
 import { Controller, Inject, UseInterceptors } from '@nestjs/common';
 import { PresenceService } from './presence.service';
-import { Ctx, MessagePattern, RmqContext } from '@nestjs/microservices';
+import {
+  Ctx,
+  MessagePattern,
+  Payload,
+  RmqContext,
+} from '@nestjs/microservices';
 import { SharedService } from '@app/shared';
 import { RedisService } from '@app/shared/services/redis.service';
 import { CacheInterceptor } from '@nestjs/cache-manager';
@@ -29,5 +34,15 @@ export class PresenceController {
     await this.redisService.set('get-presence', { t: result });
 
     return result;
+  }
+
+  @MessagePattern({ cmd: 'get-online-user' })
+  async getOnlineUser(
+    @Ctx() context: RmqContext,
+    @Payload() payload: { id: number },
+  ) {
+    this.sharedService.acknowledgeMessage(context);
+
+    return await this.presenceService.getOnlineUser(payload.id);
   }
 }

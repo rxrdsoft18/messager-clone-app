@@ -3,6 +3,7 @@ import { NewUserDto } from '../dtos/new-user.dto';
 import { LoginDto } from '../dtos/login.dto';
 import { User } from '@app/shared/entities/user.entity';
 import { FriendRequestEntity } from '@app/shared/entities/friend-request.entity';
+import {ResponseFriendListDto} from "../dtos/response-friend-list.dto";
 
 export interface AuthServiceInterface {
   getUsers(): Promise<User[]>;
@@ -21,4 +22,6 @@ export interface AuthServiceInterface {
   getUserFromHeader(jwt: string): Promise<UserJwt>;
   addFriend(userId: number, friendId: number): Promise<FriendRequestEntity>;
   getFriends(userId: number): Promise<FriendRequestEntity[]>;
+
+  getFriendsList(userId: number): Promise<ResponseFriendListDto[]>;
 }

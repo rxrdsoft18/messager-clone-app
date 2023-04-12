@@ -14,6 +14,7 @@ import { UserJwt, UsersRepositoryInterface } from '@app/shared';
 import { AuthServiceInterface } from './interfaces/auth.service.interface';
 import { FriendRequestEntity } from '@app/shared/entities/friend-request.entity';
 import { FriendRequestRepositoryInterface } from '@app/shared/interfaces/friend-request.repository.interface';
+import { ResponseFriendListDto } from './dtos/response-friend-list.dto';
 
 @Injectable()
 export class AuthService implements AuthServiceInterface {
@@ -134,5 +135,25 @@ export class AuthService implements AuthServiceInterface {
     } catch (e) {
       throw new BadRequestException('Invalid token.');
     }
+  }
+
+  async getFriendsList(userId: number): Promise<ResponseFriendListDto[]> {
+    const friends = await this.getFriends(userId);
+
+    if (friends.length === 0) return [];
+
+    return friends.map((friend) => {
+      const isUserCreator = userId === friend.creator.id;
+      const friendDetails = isUserCreator ? friend.receiver : friend.creator;
+
+      const { id, firstName, lastName, email } = friendDetails;
+
+      return {
+        id,
+        email,
+        firstName,
+        lastName,
+      };
+    });
   }
 }

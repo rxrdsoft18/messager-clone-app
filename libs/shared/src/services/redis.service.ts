@@ -1,7 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
-// import { CACHE_MANAGER } from '@nestjs/cache-manager';
 
 @Injectable()
 export class RedisService {
@@ -20,5 +19,10 @@ export class RedisService {
   async del(key: string) {
     console.log('RedisService.del()', key);
     return await this.cacheManager.del(key);
+  }
+
+  async reset() {
+    console.log('RedisService.reset()');
+    return await this.cacheManager.reset();
   }
 }

@@ -28,7 +28,9 @@
     "@nestjs/microservices": "^9.3.12",
     "@nestjs/passport": "^9.0.3",
     "@nestjs/platform-express": "^9.0.0",
+    "@nestjs/platform-socket.io": "9.0.0",
     "@nestjs/typeorm": "^9.0.1",
+    "@nestjs/websockets": "9.0.0",
     "amqp-connection-manager": "^4.1.11",
     "amqplib": "^0.10.3",
     "bcrypt": "^5.1.0",
@@ -41,6 +43,7 @@
     "redis": "^4.6.5",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
+    "socket.io": "^4.6.1",
     "typeorm": "^0.3.12"
   },
   "devDependencies": {
